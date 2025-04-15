@@ -22,7 +22,8 @@ const backend = defineBackend({
  *
  * Note: Ensure the bucket exists before deploying this code, as it only sets up IAM policies and does not create the S3 bucket.
  */
-const customBucketName = "scaleforce-app-vdr-storage-multimodal";
+
+const customBucketName = "scaleforce-app-vdr-storage";
 
 backend.addOutput({
   version: "1.3",
