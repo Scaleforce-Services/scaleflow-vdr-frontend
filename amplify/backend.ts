@@ -2,26 +2,9 @@ import { defineBackend } from "@aws-amplify/backend";
 import { auth } from "./auth/resource";
 import { Policy, PolicyStatement, Effect } from "aws-cdk-lib/aws-iam";
 
-/**
- * @see https://docs.amplify.aws/react/build-a-backend/ to add storage, functions, and more
- */
 const backend = defineBackend({
-  auth,
+  auth
 });
-
-/**
- * Note: This code assumes the existence of an S3 bucket named 'my-existing-bucket'.
- * Replace 'my-existing-bucket' with your actual bucket name and adjust the paths and permissions as needed.
- * For more information on authorization access, visit: https://docs.amplify.aws/react/build-a-backend/storage/authorization/#available-actions
- *
- * Requirements for this sample:
- * 1. An S3 bucket named 'my-existing-bucket' must exist in your AWS account.
- * 2. The bucket should contain two folders:
- *    - 'public/' - Accessible by all authenticated and unauthenticated users.
- *    - 'admin/' - Accessible only by users in the admin group and authenticated users.
- *
- * Note: Ensure the bucket exists before deploying this code, as it only sets up IAM policies and does not create the S3 bucket.
- */
 
 const customBucketName = "scaleforce-app-vdr-storage";
 
@@ -38,7 +21,8 @@ backend.addOutput({
         paths: {
           "*": {
             guest: [],
-            authenticated: ["get", "list", "write", "delete"],
+            // We'll handle more specific permissions with IAM policies
+            authenticated: ["get", "list"],
           },
         },
       },
@@ -46,57 +30,64 @@ backend.addOutput({
   },
 });
 
-
-
-/**
- * Define an inline policy to attach to Amplify's auth role
- * This policy defines how authenticated users can access your existing bucket
- */
-const authPolicy = new Policy(backend.stack, "customBucketAuthPolicy", {
-  statements: [
-    new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-      resources: [
-        `arn:aws:s3:::${customBucketName}/*`
-      ],
-    }),
-    new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["s3:ListBucket"],
-      resources: [
-        `arn:aws:s3:::${customBucketName}`,
-        `arn:aws:s3:::${customBucketName}/*`,
-      ],
-    }),
-  ],
-});
-
-/**
- * Define an inline policy to attach to Admin user role
- * This policy defines how authenticated users can access your existing bucket
- */
+// Define admin policy - admins get full access to the entire bucket
 const adminPolicy = new Policy(backend.stack, "customBucketAdminPolicy", {
   statements: [
     new PolicyStatement({
       effect: Effect.ALLOW,
-      actions: ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-      resources: [`arn:aws:s3:::${customBucketName}/*`],
-    }),
-    new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ["s3:ListBucket"],
+      actions: [
+        "s3:GetObject", 
+        "s3:PutObject", 
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
       resources: [
         `arn:aws:s3:::${customBucketName}`,
-        `arn:aws:s3:::${customBucketName}/*`,
+        `arn:aws:s3:::${customBucketName}/*`
       ],
     }),
   ],
 });
 
 
-// Add the policies to the authenticated user role
-backend.auth.resources.authenticatedUserIamRole.attachInlinePolicy(authPolicy);
+// Function to create a policy for a specific group
+function createGroupPolicy(groupName: string) {
+  return new Policy(backend.stack, `${groupName}BucketPolicy`, {
+    statements: [
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: [
+          "s3:GetObject", 
+          "s3:PutObject", 
+          "s3:DeleteObject",
+        ],
+        resources: [
+          `arn:aws:s3:::${customBucketName}/${groupName}`,
+          `arn:aws:s3:::${customBucketName}/${groupName}/*`
+        ],
+      }),
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: [
+          "s3:ListBucket", 
+        ],
+        resources: [
+          `arn:aws:s3:::${customBucketName}`,
+        ],
+      })
+    ],
+  });
+}
+
 
 // Add the policies to the admin user role
 backend.auth.resources.groups["admin"].role.attachInlinePolicy(adminPolicy);
+
+console.log('GROUPS', backend.auth.resources.groups)
+
+const groupNames = Object.keys(backend.auth.resources.groups).filter(g => g !== "admin");
+groupNames.forEach(groupName => {
+  const groupPolicy = createGroupPolicy(groupName);
+  console.log('group policy', groupPolicy);
+  backend.auth.resources.groups[groupName].role.attachInlinePolicy(groupPolicy);
+})
