@@ -98,6 +98,16 @@ function App() {
                 'application/zip',
                 'application/x-zip-compressed',
                 '.csv',
+                'text/plain',
+                'text/markdown',
+                '.txt',
+                '.md',
+                '.doc',
+                '.docx',
+                '.xls',
+                '.xlsx',
+                '.ppt',
+                '.pptx',
               ]}
               path={`${tenant}/`}
               bucket={BUCKET_NAME}
