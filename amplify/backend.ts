@@ -1,28 +1,28 @@
-import { defineBackend } from "@aws-amplify/backend";
-import { auth } from "./auth/resource";
-import { Policy, PolicyStatement, Effect } from "aws-cdk-lib/aws-iam";
+import { defineBackend } from '@aws-amplify/backend';
+import { auth } from './auth/resource';
+import { Policy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 
 const backend = defineBackend({
-  auth
+  auth,
 });
 
-const customBucketName = "scaleforce-app-vdr-storage";
+const customBucketName = 'scaleforce-app-vdr-storage';
 
 backend.addOutput({
-  version: "1.3",
+  version: '1.3',
   storage: {
-    aws_region: "eu-west-1",
+    aws_region: 'eu-west-1',
     bucket_name: customBucketName,
     buckets: [
       {
         name: customBucketName,
         bucket_name: customBucketName,
-        aws_region: "eu-west-1",
+        aws_region: 'eu-west-1',
         paths: {
-          "*": {
+          '*': {
             guest: [],
             // We'll handle more specific permissions with IAM policies
-            authenticated: ["get", "list"],
+            authenticated: ['get', 'list'],
           },
         },
       },
@@ -31,24 +31,15 @@ backend.addOutput({
 });
 
 // Define admin policy - admins get full access to the entire bucket
-const adminPolicy = new Policy(backend.stack, "customBucketAdminPolicy", {
+const adminPolicy = new Policy(backend.stack, 'customBucketAdminPolicy', {
   statements: [
     new PolicyStatement({
       effect: Effect.ALLOW,
-      actions: [
-        "s3:GetObject", 
-        "s3:PutObject", 
-        "s3:DeleteObject",
-        "s3:ListBucket"
-      ],
-      resources: [
-        `arn:aws:s3:::${customBucketName}`,
-        `arn:aws:s3:::${customBucketName}/*`
-      ],
+      actions: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject', 's3:ListBucket'],
+      resources: [`arn:aws:s3:::${customBucketName}`, `arn:aws:s3:::${customBucketName}/*`],
     }),
   ],
 });
-
 
 // Function to create a policy for a specific group
 function createGroupPolicy(groupName: string) {
@@ -57,37 +48,38 @@ function createGroupPolicy(groupName: string) {
       new PolicyStatement({
         effect: Effect.ALLOW,
         actions: [
-          "s3:GetObject", 
-          "s3:PutObject", 
-          "s3:DeleteObject",
+          's3:GetObject',
+          's3:PutObject',
+          's3:DeleteObject',
+          // "s3:ListBucket"
         ],
         resources: [
           `arn:aws:s3:::${customBucketName}/${groupName}`,
-          `arn:aws:s3:::${customBucketName}/${groupName}/*`
+          `arn:aws:s3:::${customBucketName}/${groupName}/*`,
         ],
       }),
       new PolicyStatement({
         effect: Effect.ALLOW,
-        actions: [
-          "s3:ListBucket", 
-        ],
-        resources: [
-          `arn:aws:s3:::${customBucketName}`,
-        ],
-      })
+        actions: ['s3:ListBucket'],
+        resources: [`arn:aws:s3:::${customBucketName}`],
+        // conditions: {
+        //   StringLike: {
+        //     's3:prefix': [`${groupName}`, `${groupName}/`, `${groupName}/*`],
+        //   },
+        // },
+      }),
     ],
   });
 }
 
-
 // Add the policies to the admin user role
-backend.auth.resources.groups["admin"].role.attachInlinePolicy(adminPolicy);
+backend.auth.resources.groups['admin'].role.attachInlinePolicy(adminPolicy);
 
-console.log('GROUPS', backend.auth.resources.groups)
+console.log('GROUPS', backend.auth.resources.groups);
 
-const groupNames = Object.keys(backend.auth.resources.groups).filter(g => g !== "admin");
-groupNames.forEach(groupName => {
+const groupNames = Object.keys(backend.auth.resources.groups).filter((g) => g !== 'admin');
+groupNames.forEach((groupName) => {
   const groupPolicy = createGroupPolicy(groupName);
   console.log('group policy', groupPolicy);
   backend.auth.resources.groups[groupName].role.attachInlinePolicy(groupPolicy);
-})
+});
