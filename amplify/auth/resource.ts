@@ -8,8 +8,8 @@ export const auth = defineAuth({
   loginWith: {
     email: true,
     externalProviders:{
-        callbackUrls: ['http://localhost:5173'],
-        logoutUrls: ['http://localhost:5173'],
+        callbackUrls: ['http://localhost:5173', 'https://vdr.scaleforce.app'],
+        logoutUrls: ['http://localhost:5173', 'https://vdr.scaleforce.app'],
         scopes: ['OPENID', 'PROFILE', 'EMAIL'],
     },
   },
