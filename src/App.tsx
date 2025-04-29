@@ -1,13 +1,13 @@
 import React from 'react';
-import { FileUploader } from '@aws-amplify/ui-react-storage';
 import { Button, Flex, Heading, useAuthenticator, View } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react-storage/styles.css';
 import './App.css';
 import '@aws-amplify/ui-react/styles.css';
-import { fetchAuthSession, signInWithRedirect } from '@aws-amplify/auth';
+import { fetchAuthSession } from '@aws-amplify/auth';
 import CustomStorageBrowser from './components/CustomStorageBrowser';
 import { StorageBrowser } from './components/StorageBrowser';
 import { ToastContainer } from 'react-toastify';
+import Login from './components/Login';
 
 const BUCKET_NAME = 'scaleforce-app-vdr-storage';
 
@@ -34,7 +34,7 @@ function App() {
   if (authStatus === 'configuring') return <Loading />;
   if (authStatus === 'authenticated' && tenant) {
     return (
-      <Flex direction="column" height="100vh" overflow="hidden">
+      <Flex direction="column" height="100vh" overflow="hidden" padding="2rem">
         <View className="header" shrink={0}>
           <Heading level={3} margin={'0'}>
             Welcome to Scaleforce VDR
@@ -42,16 +42,6 @@ function App() {
           <Button onClick={signOut}>Sign out</Button>
         </View>
 
-        {/* <StorageBrowser
-          defaultValue={{
-            location: {
-              path: tenant === 'admin' ? '' : `${tenant}/`,
-              bucket: BUCKET_NAME,
-              permissions: ['get', 'list', 'write', 'delete'],
-              prefix: '',
-            }
-          }}
-        /> */}
         <View overflow='hidden' grow={1} paddingTop='2rem'>
           <StorageBrowser.Provider
             defaultValue={{
@@ -66,7 +56,7 @@ function App() {
             <CustomStorageBrowser tenant={tenant} />
           </StorageBrowser.Provider>
         </View>
-        <FileUploader
+        {/* <FileUploader
           acceptedFileTypes={[
             'image/*',
             'video/*',
@@ -96,18 +86,14 @@ function App() {
           bucket={BUCKET_NAME}
           maxFileCount={10}
           isResumable
-        />
+        /> */}
        <ToastContainer position='bottom-center' />
       </Flex>
     );
   }
 
   if (authStatus === 'unauthenticated') {
-    return (
-      <button type="button" onClick={() => signInWithRedirect()}>
-        Login
-      </button>
-    );
+   return <Login />
   }
   return <Loading />;
 }
