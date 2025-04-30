@@ -2,9 +2,9 @@
 import { ActionHandler } from '@aws-amplify/ui-react-storage/browser';
 import { toast } from 'react-toastify';
 
-type GenerateLink = ActionHandler<{ items: any[]; bucket: string }>;
+type CopyPathHandler = ActionHandler<{ items: any[]; bucket: string }>;
 
-export const copyPathHandler: GenerateLink = ({
+export const copyPathHandler: CopyPathHandler = ({
   data,
 }: {
   data: { key: string};
