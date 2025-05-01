@@ -1,18 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Flex, Heading, View } from '@aws-amplify/ui-react';
-import { StorageBrowser, useAction, useView } from './StorageBrowser';
+import { StorageBrowser, useAction, useView } from '../StorageBrowser';
+import React from 'react';
+export const BUCKET_NAME = 'scaleforce-app-vdr-storage';
 
 interface Props {
   tenant: string;
 }
 
 const UploadView = StorageBrowser.UploadView;
+const DeleteView = StorageBrowser.DeleteView
 
-export default function CustomStorageBrowser({ tenant }: Props) {
+function StorageBrowserViewRenderer({ tenant }: Props) {
   const state: any = useView('LocationDetail');
   const fileDataItems = state.fileDataItems;
 
   const [, handleCopy] = useAction('copyPath', { items: fileDataItems });
+
+  if (state.actionType === 'delete') {
+    return <DeleteView />;
+  }
 
   if (state.actionType === 'upload') {
     return <UploadView />;
@@ -53,4 +60,26 @@ export default function CustomStorageBrowser({ tenant }: Props) {
       </Flex>
     </StorageBrowser.LocationDetailView.Provider>
   );
+}
+
+
+
+export default function CustomStorageBrowser({tenant}: {tenant: string}){
+
+
+  const [currentLocation] = React.useState<string>(tenant === 'admin' ? '' : `${tenant}/`)
+  return (
+    <StorageBrowser.Provider
+    defaultValue={{
+      location: {
+        path: currentLocation,
+        bucket: BUCKET_NAME,
+        permissions: ['get', 'list', 'write', 'delete'],
+        prefix: '',
+      },
+    }}
+  >
+    <StorageBrowserViewRenderer tenant={tenant}  />
+  </StorageBrowser.Provider>
+  )
 }

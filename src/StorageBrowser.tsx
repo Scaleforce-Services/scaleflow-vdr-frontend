@@ -4,9 +4,9 @@ import {
   createStorageBrowser,
   defaultActionConfigs,
 } from '@aws-amplify/ui-react-storage/browser';
-import config from '../../amplify_outputs.json';
+import config from '../amplify_outputs.json';
 import { Amplify } from 'aws-amplify';
-import { copyPathHandler } from './CopyPathAction';
+import { copyPathHandler } from './components/CopyPathAction';
 
 Amplify.configure(config);
 
@@ -70,3 +70,4 @@ export const { StorageBrowser, useView, useAction } = createStorageBrowser({
     },
   },
 });
+

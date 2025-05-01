@@ -1,15 +1,14 @@
 import React from 'react';
-import { Button, Flex, Heading, useAuthenticator, View } from '@aws-amplify/ui-react';
+import { Button, Flex, Heading, useAuthenticator, View, Text } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react-storage/styles.css';
 import './App.css';
 import '@aws-amplify/ui-react/styles.css';
 import { fetchAuthSession } from '@aws-amplify/auth';
 import CustomStorageBrowser from './components/CustomStorageBrowser';
-import { StorageBrowser } from './components/StorageBrowser';
 import { ToastContainer } from 'react-toastify';
 import Login from './components/Login';
-
-const BUCKET_NAME = 'scaleforce-app-vdr-storage';
+// import FileUpload from './components/FileUpload';
+// import AiConversation from './components/AIConversation';
 
 function App() {
   const [tenant, setTenant] = React.useState<string>('');
@@ -32,7 +31,7 @@ function App() {
   const Loading = () => <p>Loading VDR...</p>;
 
   if (authStatus === 'configuring') return <Loading />;
-  if (authStatus === 'authenticated' && tenant) {
+  if (authStatus === 'authenticated') {
     return (
       <Flex direction="column" height="100vh" overflow="hidden" padding="2rem">
         <View className="header" shrink={0}>
@@ -42,58 +41,26 @@ function App() {
           <Button onClick={signOut}>Sign out</Button>
         </View>
 
-        <View overflow='hidden' grow={1} paddingTop='2rem'>
-          <StorageBrowser.Provider
-            defaultValue={{
-              location: {
-                path: tenant === 'admin' ? '' : `${tenant}/`,
-                bucket: BUCKET_NAME,
-                permissions: ['get', 'list', 'write', 'delete'],
-                prefix: '',
-              },
-            }}
-          >
-            <CustomStorageBrowser tenant={tenant} />
-          </StorageBrowser.Provider>
+        <View overflow="hidden" grow={1} paddingTop="2rem">
+          {tenant ? (
+            <>
+              <CustomStorageBrowser tenant={tenant} />
+              {/*  <FileUpload tenant={tenant} />  */}
+              <ToastContainer position="bottom-center" />
+              {/* <AiConversation /></> */}
+            </>
+          ) : (
+            <Text>
+              You do not have access to a workspace. Please contact support to set up access.
+            </Text>
+          )}
         </View>
-        {/* <FileUploader
-          acceptedFileTypes={[
-            'image/*',
-            'video/*',
-            'audio/*',
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'application/zip',
-            'application/x-zip-compressed',
-            '.csv',
-            'text/plain',
-            'text/markdown',
-            '.txt',
-            '.md',
-            '.doc',
-            '.docx',
-            '.xls',
-            '.xlsx',
-            '.ppt',
-            '.pptx',
-          ]}
-          path={`${tenant}/`}
-          bucket={BUCKET_NAME}
-          maxFileCount={10}
-          isResumable
-        /> */}
-       <ToastContainer position='bottom-center' />
       </Flex>
     );
   }
 
   if (authStatus === 'unauthenticated') {
-   return <Login />
+    return <Login />;
   }
   return <Loading />;
 }
