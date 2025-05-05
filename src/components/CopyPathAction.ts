@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ActionHandler } from '@aws-amplify/ui-react-storage/browser';
 import { toast } from 'react-toastify';
-import { BASE_URL } from '../App';
+import { BASE_URL } from '../pages/DataRoom';
 
 type CopyPathHandler = ActionHandler<{ items: any[]; bucket: string }>;
 

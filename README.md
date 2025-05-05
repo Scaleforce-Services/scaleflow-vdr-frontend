@@ -28,7 +28,6 @@ This template equips you with a foundational React application integrated with A
 │   ├── storage/              # S3 storage configuration
 │   └── backend.ts            # Main backend definition
 ├── src/
-│   ├── App.tsx               # Main application component
 │   └── main.tsx              # Application entry point
 └── package.json              # Project dependencies
 ```

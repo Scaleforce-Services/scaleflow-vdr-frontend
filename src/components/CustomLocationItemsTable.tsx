@@ -6,7 +6,7 @@ import { Button, Flex, Text } from '@aws-amplify/ui-react';
 import { FcFolder } from 'react-icons/fc';
 import { FcFile } from 'react-icons/fc';
 import { format } from 'date-fns/format';
-import { BASE_URL } from '../App';
+import { BASE_URL } from '../pages/DataRoom';
 import { toast } from 'react-toastify';
 
 type Row = {
@@ -112,6 +112,7 @@ export default function CustomLocationItemsTable() {
 
   const state: any = useView('LocationDetail');
   const pageItems = state.pageItems;
+  console.log(state)
 
   const handleFolderClick = (row: Row) => {
     const location = state.location.current;

@@ -7,6 +7,7 @@ export default function Login() {
   React.useEffect(() => {
     window.setTimeout(() => signInWithRedirect(), 1000);
   }, []);
+  
 
   return (
     <Flex
