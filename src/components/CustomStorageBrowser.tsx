@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Flex, Heading, View } from '@aws-amplify/ui-react';
-import { StorageBrowser, useAction, useView } from '../StorageBrowser';
+import { Flex, Heading, View } from '@aws-amplify/ui-react';
+import { StorageBrowser, useView } from '../StorageBrowser';
 import React from 'react';
+import CustomLocationItemsTable from './CustomLocationItemsTable';
+
 export const BUCKET_NAME = 'scaleforce-app-vdr-storage';
 
 interface Props {
@@ -9,16 +11,27 @@ interface Props {
 }
 
 const UploadView = StorageBrowser.UploadView;
-const DeleteView = StorageBrowser.DeleteView
 
 function StorageBrowserViewRenderer({ tenant }: Props) {
   const state: any = useView('LocationDetail');
-  const fileDataItems = state.fileDataItems;
 
-  const [, handleCopy] = useAction('copyPath', { items: fileDataItems });
+
+  /**
+   * This is a workaround to handle the action exit event from the delete view
+   * and trigger the onSelect function to de-select all items otherwise the table shows no items selected
+   * but the delete button is still active and navigating to it shows the items that were previously selected
+   * This is needed because the delete view does not trigger the onSelect function
+   * when the delete action is exited. 
+   */ 
+  const handleActionExit = () => {
+    state.fileDataItems.forEach((item:any)=>{
+      state.onSelect(true, item)
+    })
+    state.onActionSelect('');
+  }
 
   if (state.actionType === 'delete') {
-    return <DeleteView />;
+    return <StorageBrowser.DeleteView onActionExit={handleActionExit}/>;
   }
 
   if (state.actionType === 'upload') {
@@ -40,21 +53,18 @@ function StorageBrowserViewRenderer({ tenant }: Props) {
           </Flex>
           <StorageBrowser.LocationDetailView.Pagination />
           <Flex direction="row">
-            <Button disabled={fileDataItems?.length !== 1} onClick={() => handleCopy()}>
-              Copy Path
-            </Button>
             <StorageBrowser.LocationDetailView.Refresh />
             <StorageBrowser.LocationDetailView.ActionsList />
           </Flex>
         </Flex>
 
-        <View>
+        {/* <View>
           <StorageBrowser.LocationDetailView.Message />
-        </View>
+        </View> */}
 
         <View overflow="auto">
           <StorageBrowser.LocationDetailView.DropZone>
-            <StorageBrowser.LocationDetailView.LocationItemsTable />
+            <CustomLocationItemsTable />
           </StorageBrowser.LocationDetailView.DropZone>
         </View>
       </Flex>
@@ -62,24 +72,20 @@ function StorageBrowserViewRenderer({ tenant }: Props) {
   );
 }
 
-
-
-export default function CustomStorageBrowser({tenant}: {tenant: string}){
-
-
-  const [currentLocation] = React.useState<string>(tenant === 'admin' ? '' : `${tenant}/`)
+export default function CustomStorageBrowser({ tenant }: { tenant: string }) {
+  const [currentLocation] = React.useState<string>(tenant === 'admin' ? '' : `${tenant}/`);
   return (
     <StorageBrowser.Provider
-    defaultValue={{
-      location: {
-        path: currentLocation,
-        bucket: BUCKET_NAME,
-        permissions: ['get', 'list', 'write', 'delete'],
-        prefix: '',
-      },
-    }}
-  >
-    <StorageBrowserViewRenderer tenant={tenant}  />
-  </StorageBrowser.Provider>
-  )
+      defaultValue={{
+        location: {
+          path: currentLocation,
+          bucket: BUCKET_NAME,
+          permissions: ['get', 'list', 'write', 'delete'],
+          prefix: '',
+        },
+      }}
+    >
+      <StorageBrowserViewRenderer tenant={tenant} />
+    </StorageBrowser.Provider>
+  );
 }

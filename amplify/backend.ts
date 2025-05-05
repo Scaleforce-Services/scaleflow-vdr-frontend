@@ -77,11 +77,9 @@ function createGroupPolicy(groupName: string) {
 // Add the policies to the admin user role
 backend.auth.resources.groups['admin'].role.attachInlinePolicy(adminPolicy);
 
-console.log('GROUPS', backend.auth.resources.groups);
 
 const groupNames = Object.keys(backend.auth.resources.groups).filter((g) => g !== 'admin');
 groupNames.forEach((groupName) => {
   const groupPolicy = createGroupPolicy(groupName);
-  console.log('group policy', groupPolicy);
   backend.auth.resources.groups[groupName].role.attachInlinePolicy(groupPolicy);
 });

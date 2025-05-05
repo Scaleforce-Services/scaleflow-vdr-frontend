@@ -9,6 +9,8 @@ import { ToastContainer } from 'react-toastify';
 import Login from './components/Login';
 // import FileUpload from './components/FileUpload';
 // import AiConversation from './components/AIConversation';
+export const BASE_URL = 'https://vdr.scaleforce.app';
+
 
 function App() {
   const [tenant, setTenant] = React.useState<string>('');

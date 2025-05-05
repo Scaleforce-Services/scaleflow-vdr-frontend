@@ -10,7 +10,6 @@ export default function AiConversation() {
     handleSendMessage,
   ] = useAIConversation('chat');
   // 'chat' is based on the key for the conversation route in your schema.
-  console.log(messages)
   return (
       <AIConversation
         messages={messages}
