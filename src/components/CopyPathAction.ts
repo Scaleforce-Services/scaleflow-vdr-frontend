@@ -13,7 +13,6 @@ export const copyPathHandler: CopyPathHandler = ({
   options?: any;
 }) => {
   const handleCopyPath = async () => {
-    console.log('Copying path to clipboard', data);
     try {
       const key = data.key
       const filePath = `${BASE_URL}/file/${encodeURI(key)}`

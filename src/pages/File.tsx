@@ -18,7 +18,6 @@ export default function File() {
     if (!fileName) return;
     setDownloading(true);
     const progressBarRef = downloadProgressRef.current?.querySelector('svg g line:nth-child(2)');
-    console.log(progressBarRef)
     progressBarRef?.setAttribute('style', 'stroke: var(--amplify-colors-green-60)');
     try {
       // Download a file from S3 bucket

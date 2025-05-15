@@ -136,7 +136,6 @@ export default function CustomLocationItemsTable() {
     []
   );
 
-  console.log(state);
 
   const handleFolderClick = (row: Row) => {
     const location = state.location.current;
