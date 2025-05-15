@@ -5,6 +5,7 @@ import DataTable from 'react-data-table-component';
 import { Button, Flex, Text } from '@aws-amplify/ui-react';
 import { FcFolder } from 'react-icons/fc';
 import { FcFile } from 'react-icons/fc';
+import { GrDownload } from "react-icons/gr";
 import { format } from 'date-fns/format';
 import { BASE_URL } from '../pages/DataRoom';
 import { toast } from 'react-toastify';
@@ -35,6 +36,10 @@ const extractFileNameFromKey = (key: string) => {
 
 export default function CustomLocationItemsTable() {
   // const [, handleAction] = useAction('copyPath');
+
+  const state: any = useView('LocationDetail');
+  const pageItems = state.pageItems;
+
   const columns = React.useMemo(
     () => [
       {
@@ -49,7 +54,7 @@ export default function CustomLocationItemsTable() {
                 onClick={() => handleFolderClick(row)}
                 size="small"
               >
-                <FcFolder size={20} />
+                <FcFolder size={20} style={{flexShrink: 0}} />
                 &nbsp;{extractFileNameFromKey(row.key)}
               </Button>
             );
@@ -92,7 +97,7 @@ export default function CustomLocationItemsTable() {
             <Button
               variation="primary"
               textAlign="left"
-              padding="0 0.25rem"
+              padding="0 0.5rem"
               onClick={async () => {
                 const key = row.key;
                 const filePath = `${BASE_URL}/file/${encodeURIComponent(key)}`;
@@ -106,13 +111,32 @@ export default function CustomLocationItemsTable() {
           );
         },
       },
+      {
+        name: '',
+        cell: (row: Row) => {
+          if (row.type !== 'FILE') return '';
+          return (
+            <Button
+              variation="primary"
+              textAlign="left"
+              padding="0 0.5rem"
+              onClick={async () => {
+                await state.onDownload(row)
+              }}
+              size="small"
+            >
+              <Flex alignItems="center" justifyContent="center" gap="0.5rem">
+                <GrDownload size={14} color='white' stroke='white' fill='white'/><Text color="white">Download</Text>
+              </Flex>
+            </Button>
+          );
+        },
+      },
     ],
     []
   );
 
-  const state: any = useView('LocationDetail');
-  const pageItems = state.pageItems;
-  console.log(state)
+  console.log(state);
 
   const handleFolderClick = (row: Row) => {
     const location = state.location.current;
