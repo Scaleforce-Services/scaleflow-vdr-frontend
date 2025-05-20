@@ -13,5 +13,5 @@ export const auth = defineAuth({
         scopes: ['OPENID', 'PROFILE', 'EMAIL'],
     },
   },
-  groups: ['admin', 'meet5', 'lleverage', 'nofence', 'dev-dolly', 'inconed'],
+  groups: ['admin', 'meet5', 'lleverage', 'nofence', 'dev-dolly', 'inconed', 'fourthline'],
 });
