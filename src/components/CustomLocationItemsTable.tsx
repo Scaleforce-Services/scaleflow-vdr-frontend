@@ -5,7 +5,7 @@ import DataTable from 'react-data-table-component';
 import { Button, Flex, Text } from '@aws-amplify/ui-react';
 import { FcFolder } from 'react-icons/fc';
 import { FcFile } from 'react-icons/fc';
-import { GrDownload } from "react-icons/gr";
+import { GrDownload } from 'react-icons/gr';
 import { format } from 'date-fns/format';
 import { BASE_URL } from '../pages/DataRoom';
 import { toast } from 'react-toastify';
@@ -44,7 +44,9 @@ export default function CustomLocationItemsTable() {
     () => [
       {
         name: 'Title',
+        grow: 2,
         cell: (row: Row) => {
+          const name = extractFileNameFromKey(row.key);
           if (row.type === 'FOLDER') {
             return (
               <Button
@@ -54,8 +56,8 @@ export default function CustomLocationItemsTable() {
                 onClick={() => handleFolderClick(row)}
                 size="small"
               >
-                <FcFolder size={20} style={{flexShrink: 0}} />
-                &nbsp;{extractFileNameFromKey(row.key)}
+                <FcFolder size={20} style={{ flexShrink: 0 }} />
+                &nbsp;{name}
               </Button>
             );
           } else
@@ -68,8 +70,8 @@ export default function CustomLocationItemsTable() {
                 width="100%"
               >
                 <FcFile size={20} style={{ flexShrink: 0 }} />
-                <Text whiteSpace="nowrap" isTruncated={true}>
-                  {extractFileNameFromKey(row.key)}
+                <Text whiteSpace="nowrap" isTruncated={true} title={name}>
+                  {name}
                 </Text>
               </Flex>
             );
@@ -79,9 +81,11 @@ export default function CustomLocationItemsTable() {
         name: 'Type',
         selector: (row: Row) => capitalize(row.type),
         sortable: true,
+        grow: 0,
       },
       {
         name: 'Last modified',
+        grow: 0.5,
         selector: (row: Row) => {
           if (row.type !== 'FILE') return '';
           const date = row.lastModified;
@@ -91,6 +95,8 @@ export default function CustomLocationItemsTable() {
       },
       {
         name: '',
+        grow: 0.5,
+        center: true,
         cell: (row: Row) => {
           if (row.type !== 'FILE') return '';
           return (
@@ -113,6 +119,8 @@ export default function CustomLocationItemsTable() {
       },
       {
         name: '',
+        grow: 0.5,
+        center: true,
         cell: (row: Row) => {
           if (row.type !== 'FILE') return '';
           return (
@@ -121,12 +129,13 @@ export default function CustomLocationItemsTable() {
               textAlign="left"
               padding="0 0.5rem"
               onClick={async () => {
-                await state.onDownload(row)
+                await state.onDownload(row);
               }}
               size="small"
             >
               <Flex alignItems="center" justifyContent="center" gap="0.5rem">
-                <GrDownload size={14} color='white' stroke='white' fill='white'/><Text color="white">Download</Text>
+                <GrDownload size={14} color="white" stroke="white" fill="white" />
+                <Text color="white">Download</Text>
               </Flex>
             </Button>
           );
@@ -135,7 +144,6 @@ export default function CustomLocationItemsTable() {
     ],
     []
   );
-
 
   const handleFolderClick = (row: Row) => {
     const location = state.location.current;
